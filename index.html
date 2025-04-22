@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathPaths — Visualize & Solve Counting Problems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* Dark colorful theme */
+        body {
+            background-color: #1a1a2e;
+            font-family: 'Georgia', serif;
+            color: #e6e6e6;
+        }
+
+        .dark-header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #e6e6e6;
+            border-bottom: 3px solid #533d8b;
+        }
+
+        .dark-card {
+            background-color: #16213e;
+            border: 1px solid #533d8b;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-btn {
+            background: linear-gradient(135deg, #533d8b 0%, #8a4fff 100%);
+            color: white;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: 0 2px 10px rgba(83, 61, 139, 0.5);
+        }
+
+        .dark-btn:hover {
+            background: linear-gradient(135deg, #8a4fff 0%, #533d8b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(138, 79, 255, 0.6);
+        }
+
+        .dark-btn:active {
+            transform: translateY(0);
+        }
+
+        .tree-node {
+            fill: #8a4fff;
+            stroke: #533d8b;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            fill: #a67cff;
+            stroke: #8a4fff;
+        }
+
+        .tree-path {
+            stroke: #8a4fff;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.7;
+        }
+
+        .tree-text {
+            font-family: 'Georgia', serif;
+            font-size: 12px;
+            fill: #e6e6e6;
+            text-anchor: middle;
+        }
+
+        .node-number {
+            font-family: 'Georgia', serif;
+            font-size: 10px;
+            fill: white;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .permutation-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .permutation-table th {
+            background: linear-gradient(135deg, #0f3460 0%, #533d8b 100%);
+            color: #e6e6e6;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .permutation-table td {
+            border: 1px solid #533d8b;
+            padding: 8px;
+            text-align: center;
+            background-color: #16213e;
+            color: #e6e6e6;
+        }
+
+        .permutation-table tr:nth-child(even) td {
+            background-color: #1a1a2e;
+        }
+
+        .permutation-table tr:hover td {
+            background-color: #533d8b;
+        }
+
+        .duplicate-cell {
+            background-color: #ff6b6b !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #ff6b6b;
+            }
+
+            50% {
+                background-color: #ff8e8e;
+            }
+
+            100% {
+                background-color: #ff6b6b;
+            }
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .stats-box {
+            background-color: rgba(10, 25, 47, 0.7);
+            border-left: 4px solid #8a4fff;
+            padding: 10px;
+            margin: 10px 0;
+            color: #e6e6e6;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            z-index: 10;
+            background-color: rgba(26, 26, 46, 0.9);
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #533d8b;
+        }
+
+        .zoom-btn {
+            background: linear-gradient(135deg, #533d8b 0%, #8a4fff 100%);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 2px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .tree-container {
+            overflow: auto;
+            width: 100%;
+            height: 500px;
+            position: relative;
+            background-color: #16213e;
+            border: 1px solid #533d8b;
+            border-radius: 8px;
+        }
+
+        .tree-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 100%;
+            min-height: 100%;
+            padding: 20px;
+        }
+
+        .tree-diagram-container {
+            position: relative;
+            margin: 0 auto;
+            cursor: grab;
+        }
+
+        .tree-diagram-container.grabbing {
+            cursor: grabbing;
+        }
+
+        .formula-box {
+            background-color: rgba(10, 25, 47, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #8a4fff;
+            color: #e6e6e6;
+        }
+
+        .solve-mode {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .solve-mode label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #e6e6e6;
+        }
+
+        .canvas-stats {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            z-index: 10;
+            background-color: rgba(10, 25, 47, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #8a4fff;
+            max-width: 250px;
+            color: #e6e6e6;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            background-color: #16213e;
+            border: 1px solid #533d8b;
+            color: #e6e6e6;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #8a4fff;
+            box-shadow: 0 0 0 2px rgba(138, 79, 255, 0.3);
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            accent-color: #8a4fff;
+        }
+
+        @media (max-width: 768px) {
+            .permutation-table {
+                font-size: 14px;
+            }
+
+            .solve-mode {
+                flex-direction: column;
+            }
+        }
+
+        /* New styles for table download container */
+        .table-download-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="dark-header mb-8 p-6 rounded-lg text-center">
+            <h1 class="text-3xl font-bold mb-2">MathPaths</h1>
+            <p class="text-xl">Visualize & Solve Counting Problems</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center mb-8">
+            <div class="inline-flex rounded-md shadow-sm" role="group">
+                <button id="home-tab" class="dark-btn px-4 py-2 text-sm font-medium rounded-l-lg">
+                    Home
+                </button>
+                <button id="tree-tab" class="bg-gray-700 px-4 py-2 text-sm font-medium hover:bg-gray-600">
+                    Tree Visualizer
+                </button>
+                <button id="table-tab" class="bg-gray-700 px-4 py-2 text-sm font-medium hover:bg-gray-600">
+                    Table Method
+                </button>
+                <button id="factorial-tab" class="bg-gray-700 px-4 py-2 text-sm font-medium hover:bg-gray-600">
+                    Factorial Solver
+                </button>
+                <button id="permutation-tab"
+                    class="bg-gray-700 px-4 py-2 text-sm font-medium rounded-r-lg hover:bg-gray-600">
+                    Permutation Formula
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div id="home-section" class="content-section">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-2xl font-bold mb-6">What This Tool Does</h2>
+                <p class="mb-6 text-lg">
+                    MathPaths helps you visualize and solve counting problems in combinatorics, including permutations,
+                    combinations, and factorial calculations.
+                </p>
+                <div class="grid md:grid-cols-3 gap-6 mt-8">
+                    <div class="dark-card p-6">
+                        <h3 class="font-bold text-lg mb-3">Tree Method Visualizer</h3>
+                        <p>Generate tree diagrams to visualize all possible outcomes when making sequential choices.</p>
+                    </div>
+                    <div class="dark-card p-6">
+                        <h3 class="font-bold text-lg mb-3">Table Method</h3>
+                        <p>Display all permutations or combinations in a grid format, with options to handle
+                            repetitions.</p>
+                    </div>
+                    <div class="dark-card p-6">
+                        <h3 class="font-bold text-lg mb-3">Factorial Solver</h3>
+                        <p>Calculate factorials with step-by-step breakdowns of the multiplication process.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tree-section" class="content-section hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">Tree Method Visualizer</h2>
+
+            <div class="max-w-2xl mx-auto dark-card p-6 mb-8">
+                <div id="tree-error" class="error-message"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="tree-items">Items (comma separated)</label>
+                        <input type="text" id="tree-items" class="w-full px-3 py-2 border rounded-md" value="A, B, C">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="tree-depth">Depth (number of choices)</label>
+                        <input type="number" id="tree-depth" min="1" max="4" class="w-full px-3 py-2 border rounded-md"
+                            value="2">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="tree-repetition"
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
+                        <span class="ml-2">Allow repetitions</span>
+                    </label>
+                </div>
+
+                <button id="generate-tree" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                    Generate Tree
+                </button>
+            </div>
+
+            <div id="tree-result" class="max-w-full mx-auto dark-card p-6 hidden">
+                <h3 class="text-xl font-bold mb-4">Tree Diagram</h3>
+                <div id="tree-stats" class="stats-box mb-4"></div>
+                <div class="tree-container">
+                    <div class="tree-wrapper">
+                        <div id="tree-diagram-container" class="tree-diagram-container">
+                            <div id="tree-diagram"></div>
+                            <div id="tree-canvas-stats" class="canvas-stats"></div>
+                            <div class="zoom-controls">
+                                <button id="zoom-in" class="zoom-btn">+</button>
+                                <button id="zoom-out" class="zoom-btn">-</button>
+                                <button id="zoom-reset" class="zoom-btn">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="download-tree"
+                    class="mt-4 dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download as Image
+                </button>
+            </div>
+
+            <div id="tree-explanation" class="max-w-2xl mx-auto mt-8 dark-card p-6">
+                <h3 class="text-xl font-bold mb-3">About Tree Diagrams</h3>
+                <p class="mb-3">Tree diagrams visualize all possible outcomes of sequential choices or events.</p>
+                <p class="mb-3">Each branch represents a possible choice, and paths from root to leaves represent
+                    complete sequences.</p>
+                <p>With repetitions allowed, items can be chosen multiple times. Without repetitions, each choice must
+                    be distinct.</p>
+            </div>
+        </div>
+
+        <div id="table-section" class="content-section hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">Table Method</h2>
+
+            <div class="max-w-2xl mx-auto dark-card p-6 mb-8">
+                <div id="table-error" class="error-message"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="table-items">Items (comma separated)</label>
+                        <input type="text" id="table-items" class="w-full px-3 py-2 border rounded-md" value="1, 2, 3">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" for="table-positions">Positions</label>
+                        <input type="number" id="table-positions" min="1" max="5"
+                            class="w-full px-3 py-2 border rounded-md" value="2">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="table-repetition"
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm">
+                        <span class="ml-2">Allow repetitions</span>
+                    </label>
+                </div>
+
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="table-ordered"
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
+                        <span class="ml-2">Ordered (permutations)</span>
+                    </label>
+                </div>
+
+                <button id="generate-table" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                    Generate Table
+                </button>
+            </div>
+
+            <div id="table-result" class="max-w-4xl mx-auto dark-card p-6 hidden">
+                <h3 class="text-xl font-bold mb-4">Result</h3>
+                <div id="table-stats" class="stats-box mb-4"></div>
+                <div id="table-output" class="overflow-auto mb-4"></div>
+                <div id="table-download-container" class="table-download-container hidden">
+                    <div id="table-stats-for-download" class="stats-box"></div>
+                    <div id="table-output-for-download"></div>
+                </div>
+                <button id="download-table"
+                    class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download as Image
+                </button>
+            </div>
+
+            <div id="table-explanation" class="max-w-2xl mx-auto mt-8 dark-card p-6">
+                <h3 class="text-xl font-bold mb-3">About Permutations and Combinations</h3>
+                <p class="mb-3"><strong>Permutations</strong> are ordered arrangements where sequence matters (AB ≠ BA).
+                </p>
+                <p class="mb-3"><strong>Combinations</strong> are unordered selections where sequence doesn't matter (AB
+                    = BA).</p>
+                <p>With repetitions allowed, items can be selected multiple times. Without repetitions, each selection
+                    must be distinct.</p>
+            </div>
+        </div>
+
+        <div id="factorial-section" class="content-section hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">Factorial Solver</h2>
+
+            <div class="max-w-2xl mx-auto dark-card p-6 mb-8">
+                <div id="factorial-error" class="error-message"></div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1" for="factorial-input">Number (n)</label>
+                    <input type="number" id="factorial-input" min="0" max="20"
+                        class="w-full px-3 py-2 border rounded-md" placeholder="Enter a number (max 20)">
+                </div>
+
+                <button id="calculate-factorial" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                    Calculate Factorial
+                </button>
+            </div>
+
+            <div id="factorial-result" class="max-w-2xl mx-auto dark-card p-6 hidden">
+                <h3 class="text-xl font-bold mb-4">Result</h3>
+                <div id="factorial-stats" class="stats-box mb-4"></div>
+                <div id="factorial-output" class="text-lg mb-4"></div>
+                <button id="download-factorial"
+                    class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download as Image
+                </button>
+            </div>
+
+            <div id="factorial-explanation" class="max-w-2xl mx-auto mt-8 dark-card p-6">
+                <h3 class="text-xl font-bold mb-3">About Factorials</h3>
+                <p class="mb-3">The factorial of a non-negative integer n (n!) is the product of all positive integers ≤
+                    n.</p>
+                <p class="mb-3">Example: 5! = 5 × 4 × 3 × 2 × 1 = 120</p>
+                <p>By definition, 0! = 1. Factorials grow very quickly with increasing n.</p>
+            </div>
+        </div>
+
+        <div id="permutation-section" class="content-section hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">Permutation Formula</h2>
+
+            <div class="max-w-2xl mx-auto dark-card p-6 mb-8">
+                <div id="permutation-error" class="error-message"></div>
+
+                <div class="solve-mode mb-4">
+                    <label>
+                        <input type="radio" name="solve-for" value="permutation" checked>
+                        Solve for nPr
+                    </label>
+                    <label>
+                        <input type="radio" name="solve-for" value="n">
+                        Solve for n
+                    </label>
+                    <label>
+                        <input type="radio" name="solve-for" value="r">
+                        Solve for r
+                    </label>
+                </div>
+
+                <div id="permutation-inputs">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="permutation-n">Total items (n)</label>
+                            <input type="number" id="permutation-n" min="1" max="20"
+                                class="w-full px-3 py-2 border rounded-md" placeholder="Enter n">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="permutation-r">Selected items (r)</label>
+                            <input type="number" id="permutation-r" min="1" max="20"
+                                class="w-full px-3 py-2 border rounded-md" placeholder="Enter r">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 mb-4 hidden" id="permutation-result-input">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="permutation-result">Permutation result
+                                (nPr)</label>
+                            <input type="number" id="permutation-result" min="1"
+                                class="w-full px-3 py-2 border rounded-md" placeholder="Enter nPr value">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="calculate-permutation" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                    Calculate
+                </button>
+            </div>
+
+            <div id="permutation-result" class="max-w-2xl mx-auto dark-card p-6 hidden">
+                <h3 class="text-xl font-bold mb-4">Result</h3>
+                <div id="permutation-stats" class="stats-box mb-4"></div>
+                <div id="permutation-output" class="text-lg mb-4"></div>
+                <div id="permutation-formula" class="formula-box mb-4"></div>
+                <button id="download-permutation"
+                    class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download as Image
+                </button>
+            </div>
+
+            <div id="permutation-explanation" class="max-w-2xl mx-auto mt-8 dark-card p-6">
+                <h3 class="text-xl font-bold mb-3">About Permutation Formula</h3>
+                <p class="mb-3">The permutation formula <em>nPr</em> calculates the number of ways to arrange <em>r</em>
+                    objects from a set of <em>n</em> distinct objects.</p>
+                <div class="formula-box">
+                    <p>The formula is:</p>
+                    <p class="text-center text-lg font-bold">nPr = n! / (n - r)!</p>
+                    <p>Where:</p>
+                    <ul class="list-disc pl-5">
+                        <li>n! is the factorial of n</li>
+                        <li>(n - r)! is the factorial of (n - r)</li>
+                    </ul>
+                </div>
+                <p class="mt-3">This formula is used when the order of selection matters and repetition is not allowed.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab navigation
+        const tabs = ['home', 'tree', 'table', 'factorial', 'permutation'];
+        const tabButtons = tabs.map(tab => document.getElementById(`${tab}-tab`));
+        const contentSections = tabs.map(tab => document.getElementById(`${tab}-section`));
+
+        function showTab(index) {
+            tabButtons.forEach(btn => btn.classList.remove('dark-btn'));
+            tabButtons.forEach(btn => btn.classList.add('bg-gray-700', 'hover:bg-gray-600'));
+            tabButtons[index].classList.remove('bg-gray-700', 'hover:bg-gray-600');
+            tabButtons[index].classList.add('dark-btn');
+
+            contentSections.forEach(section => section.classList.add('hidden'));
+            contentSections[index].classList.remove('hidden');
+        }
+
+        tabs.forEach((tab, index) => {
+            tabButtons[index].addEventListener('click', () => showTab(index));
+        });
+
+        // Error handling
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Tree Visualizer
+        const generateTreeBtn = document.getElementById('generate-tree');
+        const treeDiagram = document.getElementById('tree-diagram');
+        const treeResult = document.getElementById('tree-result');
+        const downloadTreeBtn = document.getElementById('download-tree');
+        const treeStats = document.getElementById('tree-stats');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const zoomResetBtn = document.getElementById('zoom-reset');
+        const canvasStats = document.getElementById('tree-canvas-stats');
+        const treeDiagramContainer = document.getElementById('tree-diagram-container');
+
+        let currentScale = 1;
+        const scaleFactor = 0.2;
+        let nodeCounter = 0;
+        let treeWidth = 0;
+        let treeHeight = 0;
+
+        // Variables for dragging
+        let isDragging = false;
+        let startX, startY;
+        let translateX = 0, translateY = 0;
+
+        generateTreeBtn.addEventListener('click', generateTree);
+        downloadTreeBtn.addEventListener('click', () => downloadAsImage('tree-result', 'tree-diagram-container'));
+
+        zoomInBtn.addEventListener('click', () => {
+            currentScale += scaleFactor;
+            updateTreeScale();
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            currentScale = Math.max(0.5, currentScale - scaleFactor);
+            updateTreeScale();
+        });
+
+        zoomResetBtn.addEventListener('click', () => {
+            currentScale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTreeScale();
+        });
+
+        function updateTreeScale() {
+            treeDiagram.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+            treeDiagram.style.transformOrigin = 'center';
+        }
+
+        // Add drag functionality
+        treeDiagramContainer.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.zoom-controls')) return;
+
+            isDragging = true;
+            treeDiagramContainer.classList.add('grabbing');
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTreeScale();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            treeDiagramContainer.classList.remove('grabbing');
+        });
+
+        function generateTree() {
+            const itemsInput = document.getElementById('tree-items').value.trim();
+            const depth = parseInt(document.getElementById('tree-depth').value);
+            const allowRepetition = document.getElementById('tree-repetition').checked;
+
+            // Validation
+            if (!itemsInput) {
+                showError('tree-error', 'Please enter items');
+                return;
+            }
+
+            if (isNaN(depth)) {
+                showError('tree-error', 'Please enter a valid depth');
+                return;
+            }
+
+            if (depth < 1 || depth > 4) {
+                showError('tree-error', 'Depth must be between 1 and 4');
+                return;
+            }
+
+            const items = itemsInput.split(',').map(item => item.trim()).filter(item => item);
+
+            if (items.length === 0) {
+                showError('tree-error', 'Please enter at least one valid item');
+                return;
+            }
+
+            if (!allowRepetition && items.length < depth) {
+                showError('tree-error', 'For no repetition, items must be ≥ depth');
+                return;
+            }
+
+            treeDiagram.innerHTML = '';
+            nodeCounter = 0;
+            translateX = 0;
+            translateY = 0;
+
+            // Create SVG container
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+
+            // Calculate dimensions
+            const startX = 400;
+            const startY = 50;
+            const ySpacing = 100;
+            const xSpacing = 200 / depth;
+
+            // Calculate required width
+            const totalPaths = allowRepetition ?
+                Math.pow(items.length, depth) :
+                factorial(items.length) / factorial(items.length - depth);
+            treeWidth = Math.max(800, 200 * totalPaths);
+            treeHeight = 500;
+
+            svg.setAttribute('viewBox', `0 0 ${treeWidth} ${treeHeight}`);
+
+            // Draw tree recursively
+            drawTreeNode(svg, items, depth, allowRepetition, startX, startY, xSpacing, ySpacing, 1, []);
+
+            treeDiagram.appendChild(svg);
+            treeResult.classList.remove('hidden');
+
+            // Calculate statistics
+            const totalOutcomes = allowRepetition ?
+                Math.pow(items.length, depth) :
+                factorial(items.length) / factorial(items.length - depth);
+
+            const statsHTML = `
+                <p><strong>Tree Statistics:</strong></p>
+                <p>Items: ${items.length}</p>
+                <p>Depth: ${depth}</p>
+                <p>Repetition: ${allowRepetition ? 'Allowed' : 'Not Allowed'}</p>
+                <p>Total Outcomes: ${totalOutcomes}</p>
+            `;
+
+            treeStats.innerHTML = statsHTML;
+            canvasStats.innerHTML = statsHTML;
+
+            // Set container size and center the tree
+            treeDiagramContainer.style.width = `${treeWidth}px`;
+            treeDiagramContainer.style.height = `${treeHeight}px`;
+            updateTreeScale();
+
+            // Add node click events
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const path = node.getAttribute('data-path');
+                    alert(path ? `Path: ${path}` : 'Root node');
+                });
+            });
+        }
+
+        function drawTreeNode(svg, items, depth, allowRepetition, x, y, xSpacing, ySpacing, currentDepth, path) {
+            const svgNS = "http://www.w3.org/2000/svg";
+
+            // Draw node
+            const node = document.createElementNS(svgNS, "circle");
+            node.setAttribute('cx', x);
+            node.setAttribute('cy', y);
+            node.setAttribute('r', 15);
+            node.setAttribute('class', 'tree-node');
+            node.setAttribute('data-path', path.join(' → '));
+
+            // Add node number
+            const nodeNumber = document.createElementNS(svgNS, "text");
+            nodeNumber.setAttribute('x', x);
+            nodeNumber.setAttribute('y', y + 5);
+            nodeNumber.setAttribute('class', 'node-number');
+            nodeNumber.textContent = ++nodeCounter;
+
+            // Add tooltip
+            const title = document.createElementNS(svgNS, "title");
+            title.textContent = path.length ? `Path: ${path.join(' → ')}` : 'Root';
+            node.appendChild(title);
+
+            svg.appendChild(node);
+            svg.appendChild(nodeNumber);
+
+            // Add text label
+            if (path.length > 0) {
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute('x', x);
+                text.setAttribute('y', y - 20);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('class', 'tree-text');
+                text.textContent = path[path.length - 1];
+                svg.appendChild(text);
+            }
+
+            // Stop if we've reached the depth
+            if (currentDepth >= depth) return;
+
+            // Available items
+            const availableItems = allowRepetition ? items : items.filter(item => !path.includes(item));
+
+            // Calculate positions for children
+            const childCount = availableItems.length;
+            const totalWidth = childCount * xSpacing * (depth - currentDepth + 1);
+            const startX = x - totalWidth / 2 + xSpacing * (depth - currentDepth + 1) / 2;
+
+            availableItems.forEach((item, index) => {
+                const childX = startX + index * xSpacing * (depth - currentDepth + 1);
+                const childY = y + ySpacing;
+
+                // Draw path
+                const pathElement = document.createElementNS(svgNS, "path");
+                pathElement.setAttribute('d', `M ${x} ${y + 15} L ${childX} ${childY - 15}`);
+                pathElement.setAttribute('class', 'tree-path');
+                svg.appendChild(pathElement);
+
+                // Draw child node
+                drawTreeNode(svg, items, depth, allowRepetition, childX, childY, xSpacing, ySpacing, currentDepth + 1, [...path, item]);
+            });
+        }
+
+        // Table Method
+        const generateTableBtn = document.getElementById('generate-table');
+        const tableOutput = document.getElementById('table-output');
+        const tableResult = document.getElementById('table-result');
+        const downloadTableBtn = document.getElementById('download-table');
+        const tableStats = document.getElementById('table-stats');
+        const tableDownloadContainer = document.getElementById('table-download-container');
+        const tableStatsForDownload = document.getElementById('table-stats-for-download');
+        const tableOutputForDownload = document.getElementById('table-output-for-download');
+
+        generateTableBtn.addEventListener('click', generateTable);
+        downloadTableBtn.addEventListener('click', () => {
+            // Copy the content to the download container
+            tableStatsForDownload.innerHTML = tableStats.innerHTML;
+            tableOutputForDownload.innerHTML = tableOutput.innerHTML;
+            tableDownloadContainer.classList.remove('hidden');
+
+            // Download the container
+            downloadAsImage('table-result', 'table-download-container');
+
+            // Hide the download container again
+            setTimeout(() => {
+                tableDownloadContainer.classList.add('hidden');
+            }, 100);
+        });
+
+        function generateTable() {
+            const itemsInput = document.getElementById('table-items').value.trim();
+            const positions = parseInt(document.getElementById('table-positions').value);
+            const allowRepetition = document.getElementById('table-repetition').checked;
+            const ordered = document.getElementById('table-ordered').checked;
+
+            // Validation
+            if (!itemsInput) {
+                showError('table-error', 'Please enter items');
+                return;
+            }
+
+            if (isNaN(positions)) {
+                showError('table-error', 'Please enter a valid number of positions');
+                return;
+            }
+
+            const items = itemsInput.split(',').map(item => item.trim()).filter(item => item);
+
+            if (items.length === 0) {
+                showError('table-error', 'Please enter at least one valid item');
+                return;
+            }
+
+            if (!allowRepetition && items.length < positions) {
+                showError('table-error', 'For no repetition, items must be ≥ positions');
+                return;
+            }
+
+            tableOutput.innerHTML = '';
+
+            // Generate all possible combinations/permutations
+            const results = ordered ?
+                generatePermutations(items, positions, allowRepetition) :
+                generateCombinations(items, positions, allowRepetition);
+
+            // Create table
+            const table = document.createElement('table');
+            table.className = 'permutation-table';
+
+            // Create header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            for (let i = 0; i < positions; i++) {
+                const th = document.createElement('th');
+                th.textContent = `Position ${i + 1}`;
+                headerRow.appendChild(th);
+            }
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Create body
+            const tbody = document.createElement('tbody');
+
+            const seen = new Set();
+            let duplicateCount = 0;
+
+            results.forEach(result => {
+                const key = result.join(',');
+                const isDuplicate = seen.has(key);
+                if (isDuplicate) duplicateCount++;
+                seen.add(key);
+
+                const row = document.createElement('tr');
+
+                result.forEach(item => {
+                    const td = document.createElement('td');
+                    td.textContent = item;
+                    if (isDuplicate) {
+                        td.classList.add('duplicate-cell');
+                    }
+                    row.appendChild(td);
+                });
+
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            tableOutput.appendChild(table);
+            tableResult.classList.remove('hidden');
+
+            // Calculate statistics
+            const totalCombinations = results.length;
+            const uniqueCombinations = seen.size;
+
+            tableStats.innerHTML = `
+                <p><strong>Table Statistics:</strong></p>
+                <p>Items: ${items.length}</p>
+                <p>Positions: ${positions}</p>
+                <p>Type: ${ordered ? 'Permutations' : 'Combinations'}</p>
+                <p>Repetition: ${allowRepetition ? 'Allowed' : 'Not Allowed'}</p>
+                <p>Total arrangements: ${totalCombinations}</p>
+                <p>Unique arrangements: ${uniqueCombinations}</p>
+                ${duplicateCount > 0 ? `<p>Duplicate arrangements: ${duplicateCount}</p>` : ''}
+            `;
+        }
+
+        function generatePermutations(items, k, allowRepetition) {
+            const result = [];
+
+            function backtrack(current) {
+                if (current.length === k) {
+                    result.push([...current]);
+                    return;
+                }
+
+                for (let i = 0; i < items.length; i++) {
+                    if (!allowRepetition && current.includes(items[i])) continue;
+                    current.push(items[i]);
+                    backtrack(current);
+                    current.pop();
+                }
+            }
+
+            backtrack([]);
+            return result;
+        }
+
+        function generateCombinations(items, k, allowRepetition) {
+            const result = [];
+
+            function backtrack(start, current) {
+                if (current.length === k) {
+                    result.push([...current]);
+                    return;
+                }
+
+                for (let i = start; i < items.length; i++) {
+                    if (!allowRepetition && i > start && items[i] === items[i - 1]) continue;
+                    current.push(items[i]);
+                    backtrack(allowRepetition ? i : i + 1, current);
+                    current.pop();
+                }
+            }
+
+            backtrack(0, []);
+            return result;
+        }
+
+        // Factorial Solver
+        const calculateFactorialBtn = document.getElementById('calculate-factorial');
+        const factorialOutput = document.getElementById('factorial-output');
+        const factorialResult = document.getElementById('factorial-result');
+        const downloadFactorialBtn = document.getElementById('download-factorial');
+        const factorialStats = document.getElementById('factorial-stats');
+
+        calculateFactorialBtn.addEventListener('click', calculateFactorial);
+        downloadFactorialBtn.addEventListener('click', () => downloadAsImage('factorial-result', 'factorial-output'));
+
+        function calculateFactorial() {
+            const n = parseInt(document.getElementById('factorial-input').value);
+
+            // Validation
+            if (isNaN(n)) {
+                showError('factorial-error', 'Please enter a valid number');
+                return;
+            }
+
+            if (n < 0) {
+                showError('factorial-error', 'Factorial is not defined for negative numbers');
+                return;
+            }
+
+            if (n > 20) {
+                showError('factorial-error', 'Maximum supported value is 20 (due to JavaScript limitations)');
+                return;
+            }
+
+            const result = factorial(n);
+            const steps = [];
+
+            for (let i = n; i > 0; i--) {
+                steps.push(i);
+            }
+
+            factorialOutput.innerHTML = `
+                <p class="text-lg font-semibold">
+                    ${n}! = ${result.toLocaleString()}
+                </p>
+            `;
+
+            factorialStats.innerHTML = `
+                <p><strong>Factorial Calculation:</strong></p>
+                <p>n: ${n}</p>
+                <p>Result: ${result.toLocaleString()}</p>
+                <p>Calculation: ${steps.join(' × ')}${steps.length > 0 ? ' = ' + result.toLocaleString() : ''}</p>
+            `;
+
+            factorialResult.classList.remove('hidden');
+        }
+
+        // Permutation Formula Calculator
+        const calculatePermutationBtn = document.getElementById('calculate-permutation');
+        const permutationOutput = document.getElementById('permutation-output');
+        const permutationResultSection = document.getElementById('permutation-result');
+        const downloadPermutationBtn = document.getElementById('download-permutation');
+        const permutationStats = document.getElementById('permutation-stats');
+        const permutationFormula = document.getElementById('permutation-formula');
+        const solveForRadios = document.querySelectorAll('input[name="solve-for"]');
+        const permutationResultInput = document.getElementById('permutation-result-input');
+
+        solveForRadios.forEach(radio => {
+            radio.addEventListener('change', updateInputFields);
+        });
+
+        calculatePermutationBtn.addEventListener('click', calculatePermutation);
+        downloadPermutationBtn.addEventListener('click', () => downloadAsImage('permutation-result', 'permutation-output'));
+
+        function updateInputFields() {
+            const solveFor = document.querySelector('input[name="solve-for"]:checked').value;
+
+            const nInput = document.getElementById('permutation-n');
+            const rInput = document.getElementById('permutation-r');
+            const resultInput = document.getElementById('permutation-result');
+
+            // Reset all fields
+            nInput.disabled = false;
+            rInput.disabled = false;
+            resultInput.disabled = false;
+            permutationResultInput.classList.add('hidden');
+
+            // Update based on selection
+            if (solveFor === 'n') {
+                nInput.disabled = true;
+                nInput.value = '';
+                permutationResultInput.classList.remove('hidden');
+            } else if (solveFor === 'r') {
+                rInput.disabled = true;
+                rInput.value = '';
+                permutationResultInput.classList.remove('hidden');
+            } else if (solveFor === 'permutation') {
+                resultInput.disabled = true;
+                resultInput.value = '';
+            }
+        }
+
+        function calculatePermutation() {
+            const solveFor = document.querySelector('input[name="solve-for"]:checked').value;
+
+            if (solveFor === 'permutation') {
+                calculateNPR();
+            } else if (solveFor === 'n') {
+                solveForN();
+            } else if (solveFor === 'r') {
+                solveForR();
+            }
+        }
+
+        function calculateNPR() {
+            const n = parseInt(document.getElementById('permutation-n').value);
+            const r = parseInt(document.getElementById('permutation-r').value);
+
+            // Validation
+            if (isNaN(n) || isNaN(r)) {
+                showError('permutation-error', 'Please enter valid numbers for n and r');
+                return;
+            }
+
+            if (n < 1 || r < 1) {
+                showError('permutation-error', 'Both n and r must be positive integers');
+                return;
+            }
+
+            if (r > n) {
+                showError('permutation-error', 'r cannot be greater than n');
+                return;
+            }
+
+            if (n > 20 || r > 20) {
+                showError('permutation-error', 'Maximum supported value is 20 (due to JavaScript limitations)');
+                return;
+            }
+
+            const nFactorial = factorial(n);
+            const nMinusRFactorial = factorial(n - r);
+            const permutation = nFactorial / nMinusRFactorial;
+
+            permutationOutput.innerHTML = `
+                <p class="text-lg font-semibold">
+                    ${n}P${r} = ${permutation.toLocaleString()}
+                </p>
+            `;
+
+            permutationStats.innerHTML = `
+                <p><strong>Permutation Statistics:</strong></p>
+                <p>n: ${n}</p>
+                <p>r: ${r}</p>
+                <p>n! = ${nFactorial.toLocaleString()}</p>
+                <p>(n-r)! = ${nMinusRFactorial.toLocaleString()}</p>
+                <p>Result: ${permutation.toLocaleString()}</p>
+            `;
+
+            permutationFormula.innerHTML = `
+                <p>The permutation formula is:</p>
+                <p class="text-center text-lg font-bold">${n}P${r} = ${n}! / (${n} - ${r})! = ${permutation.toLocaleString()}</p>
+                <p>Calculation steps:</p>
+                <p>${n}! = ${n} × ${n - 1} × ... × 1 = ${nFactorial.toLocaleString()}</p>
+                <p>(${n} - ${r})! = ${n - r}! = ${nMinusRFactorial.toLocaleString()}</p>
+                <p>${n}P${r} = ${nFactorial.toLocaleString()} / ${nMinusRFactorial.toLocaleString()} = ${permutation.toLocaleString()}</p>
+            `;
+
+            permutationResultSection.classList.remove('hidden');
+        }
+
+        function solveForN() {
+            const r = parseInt(document.getElementById('permutation-r').value);
+            const permutationValue = parseInt(document.getElementById('permutation-result').value);
+
+            if (isNaN(r) || isNaN(permutationValue)) {
+                showError('permutation-error', 'Please enter valid numbers for r and nPr');
+                return;
+            }
+
+            if (r < 1 || permutationValue < 1) {
+                showError('permutation-error', 'Both r and nPr must be positive integers');
+                return;
+            }
+
+            // Find n where n!/(n-r)! ≈ permutationValue
+            let n = r;
+            let found = false;
+            while (n <= 20) {
+                const currentPerm = factorial(n) / factorial(n - r);
+                if (currentPerm === permutationValue) {
+                    found = true;
+                    break;
+                }
+                n++;
+            }
+
+            if (!found) {
+                showError('permutation-error', 'No exact solution found for n ≤ 20');
+                return;
+            }
+
+            permutationOutput.innerHTML = `
+                <p class="text-lg font-semibold">
+                    n = ${n} (for ${n}P${r} = ${permutationValue})
+                </p>
+            `;
+
+            permutationStats.innerHTML = `
+                <p><strong>Solution:</strong></p>
+                <p>Given r = ${r} and nPr = ${permutationValue}</p>
+                <p>Found n = ${n}</p>
+                <p>Verification: ${n}P${r} = ${factorial(n) / factorial(n - r)}</p>
+            `;
+
+            permutationFormula.innerHTML = `
+                <p>Solved for n where:</p>
+                <p class="text-center text-lg font-bold">n! / (n - ${r})! = ${permutationValue}</p>
+                <p>Found solution:</p>
+                <p>n = ${n}</p>
+                <p>Verification:</p>
+                <p>${n}P${r} = ${n}! / (${n}-${r})! = ${factorial(n) / factorial(n - r)}</p>
+            `;
+
+            permutationResultSection.classList.remove('hidden');
+        }
+
+        function solveForR() {
+            const n = parseInt(document.getElementById('permutation-n').value);
+            const permutationValue = parseInt(document.getElementById('permutation-result').value);
+
+            if (isNaN(n) || isNaN(permutationValue)) {
+                showError('permutation-error', 'Please enter valid numbers for n and nPr');
+                return;
+            }
+
+            if (n < 1 || permutationValue < 1) {
+                showError('permutation-error', 'Both n and nPr must be positive integers');
+                return;
+            }
+
+            if (n > 20) {
+                showError('permutation-error', 'Maximum supported value for n is 20');
+                return;
+            }
+
+            // Find r where n!/(n-r)! ≈ permutationValue
+            let r = 1;
+            let found = false;
+            while (r <= n) {
+                const currentPerm = factorial(n) / factorial(n - r);
+                if (currentPerm === permutationValue) {
+                    found = true;
+                    break;
+                }
+                r++;
+            }
+
+            if (!found) {
+                showError('permutation-error', 'No exact solution found for given n and nPr');
+                return;
+            }
+
+            permutationOutput.innerHTML = `
+                <p class="text-lg font-semibold">
+                    r = ${r} (for ${n}P${r} = ${permutationValue})
+                </p>
+            `;
+
+            permutationStats.innerHTML = `
+                <p><strong>Solution:</strong></p>
+                <p>Given n = ${n} and nPr = ${permutationValue}</p>
+                <p>Found r = ${r}</p>
+                <p>Verification: ${n}P${r} = ${permutationValue}</p>
+            `;
+
+            permutationFormula.innerHTML = `
+                <p>Solved for r where:</p>
+                <p class="text-center text-lg font-bold">${n}! / (${n} - r)! = ${permutationValue}</p>
+                <p>Found solution:</p>
+                <p>r = ${r}</p>
+                <p>Verification:</p>
+                <p>${n}P${r} = ${n}! / (${n}-${r})! = ${permutationValue}</p>
+            `;
+
+            permutationResultSection.classList.remove('hidden');
+        }
+
+        // Helper functions
+        function factorial(num) {
+            if (num < 0) return -1;
+            if (num === 0) return 1;
+            return num * factorial(num - 1);
+        }
+
+        // Improved download functionality
+        function downloadAsImage(containerId, contentId) {
+            const container = document.getElementById(containerId);
+            const content = document.getElementById(contentId);
+
+            html2canvas(content, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                scrollX: 0,
+                scrollY: 0,
+                backgroundColor: '#16213e'
+            }).then(canvas => {
+                // Download
+                const link = document.createElement('a');
+                link.download = `${containerId.replace('-result', '')}-${new Date().toISOString().slice(0, 10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Initialize
+        showTab(0);
+        updateInputFields();
+    </script>
+</body>
+
+</html>
