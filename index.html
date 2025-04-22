@@ -8,13 +8,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        /* Dark colorful theme */
-        body {
+        /* Reset and base styles */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
             background-color: #1a1a2e;
             font-family: 'Georgia', serif;
             color: #e6e6e6;
         }
 
+        /* Main app container */
+        #app {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scrollable content area */
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
+        }
+
+        /* Dark colorful theme */
         .dark-header {
             background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
             color: #e6e6e6;
@@ -119,11 +146,9 @@
             0% {
                 background-color: #ff6b6b;
             }
-
             50% {
                 background-color: #ff8e8e;
             }
-
             100% {
                 background-color: #ff6b6b;
             }
@@ -270,7 +295,6 @@
             color: #e6e6e6;
             font-size: 12px;
             display: none;
-            /* Hide canvas stats by default */
         }
 
         input[type="text"],
@@ -307,8 +331,12 @@
 
         /* Mobile-specific styles */
         @media (max-width: 640px) {
-            .container {
-                padding: 10px;
+            .scrollable-content {
+                padding-bottom: 40px;
+            }
+            
+            .scrollable-content > * {
+                -webkit-transform: translateZ(0);
             }
 
             .dark-header {
@@ -351,6 +379,12 @@
             .node-number {
                 font-size: 8px;
             }
+
+            #table-output {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+            }
         }
 
         /* Touch-friendly elements */
@@ -366,11 +400,6 @@
             min-height: 44px;
         }
 
-        /* Prevent text size adjustment */
-        html {
-            -webkit-text-size-adjust: 100%;
-        }
-        
         /* Mobile not supported message */
         .mobile-not-supported {
             display: none;
@@ -381,17 +410,22 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
         @media (max-width: 640px) {
             .mobile-not-supported {
                 display: block;
             }
         }
+
+        /* Content sections */
+        .content-section {
+            width: 100%;
+        }
     </style>
 </head>
 
 <body>
-    <div class="container mx-auto px-4 py-4">
+    <div id="app">
         <!-- Header -->
         <header class="dark-header mb-6 p-4 rounded-lg text-center">
             <h1 class="text-2xl font-bold mb-2">MathPaths</h1>
@@ -399,7 +433,7 @@
         </header>
 
         <!-- Navigation Tabs -->
-        <div class="flex justify-center mb-6 overflow-x-auto">
+        <div class="flex justify-center mb-6 overflow-x-auto px-4">
             <div class="inline-flex rounded-md shadow-sm" role="group">
                 <button id="home-tab" class="dark-btn px-3 py-2 text-sm font-medium rounded-l-lg">
                     Home
@@ -420,277 +454,255 @@
             </div>
         </div>
 
-        <!-- Content Sections -->
-        <div id="home-section" class="content-section">
-            <div class="max-w-3xl mx-auto text-center">
-                <h2 class="text-xl font-bold mb-4">What This Tool Does</h2>
-                <p class="mb-4">
-                    MathPaths helps you visualize and solve counting problems in combinatorics, including permutations,
-                    combinations, and factorial calculations.
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-                    <div class="dark-card p-4">
-                        <h3 class="font-bold mb-2">Tree Method</h3>
-                        <p class="text-sm">Generate tree diagrams to visualize all possible outcomes.</p>
-                    </div>
-                    <div class="dark-card p-4">
-                        <h3 class="font-bold mb-2">Table Method</h3>
-                        <p class="text-sm">Display all permutations or combinations in a grid format.</p>
-                    </div>
-                    <div class="dark-card p-4">
-                        <h3 class="font-bold mb-2">Factorial Solver</h3>
-                        <p class="text-sm">Calculate factorials with step-by-step breakdowns.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tree-section" class="content-section hidden">
-            <div class="mobile-not-supported">
-                The Tree Method is not currently supported on mobile devices. Please use a desktop or tablet to access this feature.
-            </div>
-            
-            <h2 class="text-xl font-bold mb-4 text-center">Tree Method Visualizer</h2>
-
-            <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
-                <div id="tree-error" class="error-message"></div>
-                <div class="grid grid-cols-1 gap-3 mb-3">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" for="tree-items">Items (comma separated)</label>
-                        <input type="text" id="tree-items" class="w-full px-3 py-2 border rounded-md" value="A, B, C">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" for="tree-depth">Depth (number of choices)</label>
-                        <input type="number" id="tree-depth" min="1" max="4" class="w-full px-3 py-2 border rounded-md"
-                            value="2">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" id="tree-repetition"
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
-                        <span class="ml-2 text-sm">Allow repetitions</span>
-                    </label>
-                </div>
-
-                <button id="generate-tree" class="w-full dark-btn font-bold py-2 px-4 rounded">
-                    Generate Tree
-                </button>
-            </div>
-
-            <div id="tree-result" class="max-w-full mx-auto dark-card p-4 hidden">
-                <h3 class="text-lg font-bold mb-3">Tree Diagram</h3>
-                <div id="tree-stats" class="stats-box mb-3"></div>
-                <div class="tree-container pinch-zoom-container">
-                    <div class="tree-wrapper">
-                        <div id="tree-diagram-container" class="tree-diagram-container">
-                            <div id="tree-diagram"></div>
-                            <div id="tree-canvas-stats" class="canvas-stats"></div>
+        <!-- Scrollable Content Area -->
+        <div class="scrollable-content px-4">
+            <!-- Content Sections -->
+            <div id="home-section" class="content-section">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-xl font-bold mb-4">What This Tool Does</h2>
+                    <p class="mb-4">
+                        MathPaths helps you visualize and solve counting problems in combinatorics, including
+                        permutations, combinations, and factorial calculations.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                        <div class="dark-card p-4">
+                            <h3 class="font-bold mb-2">Tree Method</h3>
+                            <p class="text-sm">Generate tree diagrams to visualize all possible outcomes.</p>
+                        </div>
+                        <div class="dark-card p-4">
+                            <h3 class="font-bold mb-2">Table Method</h3>
+                            <p class="text-sm">Display all permutations or combinations in a grid format.</p>
+                        </div>
+                        <div class="dark-card p-4">
+                            <h3 class="font-bold mb-2">Factorial Solver</h3>
+                            <p class="text-sm">Calculate factorials with step-by-step breakdowns.</p>
                         </div>
                     </div>
                 </div>
-                <div class="zoom-controls">
-                    <button id="zoom-in" class="zoom-btn" title="Zoom In">+</button>
-                    <button id="zoom-out" class="zoom-btn" title="Zoom Out">-</button>
-                    <button id="zoom-reset" class="zoom-btn" title="Reset Zoom">↻</button>
-                    <div class="zoom-display">100%</div>
-                </div>
-                <button id="download-tree"
-                    class="mt-3 dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    Download as Image
-                </button>
             </div>
 
-            <div id="tree-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
-                <h3 class="text-lg font-bold mb-2">About Tree Diagrams</h3>
-                <p class="mb-2 text-sm">Tree diagrams visualize all possible outcomes of sequential choices or events.
-                </p>
-                <p class="text-sm">Each branch represents a possible choice, and paths from root to leaves represent
-                    complete sequences.</p>
-            </div>
-        </div>
-
-        <div id="table-section" class="content-section hidden">
-            <h2 class="text-xl font-bold mb-4 text-center">Table Method</h2>
-
-            <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
-                <div id="table-error" class="error-message"></div>
-                <div class="grid grid-cols-1 gap-3 mb-3">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" for="table-items">Items (comma separated)</label>
-                        <input type="text" id="table-items" class="w-full px-3 py-2 border rounded-md" value="1, 2, 3">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" for="table-positions">Positions</label>
-                        <input type="number" id="table-positions" min="1" max="5"
-                            class="w-full px-3 py-2 border rounded-md" value="2">
-                    </div>
+            <div id="tree-section" class="content-section hidden">
+                <div class="mobile-not-supported">
+                    The Tree Method is not currently supported on mobile devices. Please use a desktop or tablet to
+                    access this feature.
                 </div>
 
-                <div class="mb-3">
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" id="table-repetition"
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm">
-                        <span class="ml-2 text-sm">Allow repetitions</span>
-                    </label>
-                </div>
+                <h2 class="text-xl font-bold mb-4 text-center">Tree Method Visualizer</h2>
 
-                <div class="mb-3">
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" id="table-ordered"
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
-                        <span class="ml-2 text-sm">Ordered (permutations)</span>
-                    </label>
-                </div>
-
-                <button id="generate-table" class="w-full dark-btn font-bold py-2 px-4 rounded">
-                    Generate Table
-                </button>
-            </div>
-
-            <div id="table-result" class="max-w-full mx-auto dark-card p-4 hidden">
-                <h3 class="text-lg font-bold mb-3">Result</h3>
-                <div id="table-stats" class="stats-box mb-3"></div>
-                <div id="table-output" class="overflow-auto mb-3" style="max-height: 400px;"></div>
-                <div id="table-download-container" class="table-download-container hidden">
-                    <div id="table-stats-for-download" class="stats-box"></div>
-                    <div id="table-output-for-download"></div>
-                </div>
-                <button id="download-table"
-                    class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    Download as Image
-                </button>
-            </div>
-
-            <div id="table-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
-                <h3 class="text-lg font-bold mb-2">About Permutations and Combinations</h3>
-                <p class="mb-2 text-sm"><strong>Permutations</strong> are ordered arrangements where sequence matters
-                    (AB ≠ BA).</p>
-                <p class="text-sm"><strong>Combinations</strong> are unordered selections where sequence doesn't matter
-                    (AB = BA).</p>
-            </div>
-        </div>
-
-        <div id="factorial-section" class="content-section hidden">
-            <h2 class="text-xl font-bold mb-4 text-center">Factorial Solver</h2>
-
-            <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
-                <div id="factorial-error" class="error-message"></div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1" for="factorial-input">Number (n)</label>
-                    <input type="number" id="factorial-input" min="0" max="20"
-                        class="w-full px-3 py-2 border rounded-md" placeholder="Enter a number (max 20)">
-                </div>
-
-                <button id="calculate-factorial" class="w-full dark-btn font-bold py-2 px-4 rounded">
-                    Calculate Factorial
-                </button>
-            </div>
-
-            <div id="factorial-result" class="max-w-2xl mx-auto dark-card p-4 hidden">
-                <h3 class="text-lg font-bold mb-3">Result</h3>
-                <div id="factorial-stats" class="stats-box mb-3"></div>
-                <div id="factorial-output" class="mb-3"></div>
-                <button id="download-factorial"
-                    class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    Download as Image
-                </button>
-            </div>
-
-            <div id="factorial-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
-                <h3 class="text-lg font-bold mb-2">About Factorials</h3>
-                <p class="mb-2 text-sm">The factorial of a non-negative integer n (n!) is the product of all positive
-                    integers ≤ n.</p>
-                <p class="text-sm">Example: 5! = 5 × 4 × 3 × 2 × 1 = 120</p>
-            </div>
-        </div>
-
-        <div id="permutation-section" class="content-section hidden">
-            <h2 class="text-xl font-bold mb-4 text-center">Permutation Formula</h2>
-
-            <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
-                <div id="permutation-error" class="error-message"></div>
-
-                <div class="solve-mode mb-3">
-                    <label>
-                        <input type="radio" name="solve-for" value="permutation" checked>
-                        <span class="text-sm">Solve for nPr</span>
-                    </label>
-                    <label>
-                        <input type="radio" name="solve-for" value="n">
-                        <span class="text-sm">Solve for n</span>
-                    </label>
-                    <label>
-                        <input type="radio" name="solve-for" value="r">
-                        <span class="text-sm">Solve for r</span>
-                    </label>
-                </div>
-
-                <div id="permutation-inputs">
+                <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
+                    <div id="tree-error" class="error-message"></div>
                     <div class="grid grid-cols-1 gap-3 mb-3">
                         <div>
-                            <label class="block text-sm font-medium mb-1" for="permutation-n">Total items (n)</label>
-                            <input type="number" id="permutation-n" min="1" max="20"
-                                class="w-full px-3 py-2 border rounded-md" placeholder="Enter n">
+                            <label class="block text-sm font-medium mb-1" for="tree-items">Items (comma separated)</label>
+                            <input type="text" id="tree-items" class="w-full px-3 py-2 border rounded-md" value="A, B, C">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1" for="permutation-r">Selected items (r)</label>
-                            <input type="number" id="permutation-r" min="1" max="20"
-                                class="w-full px-3 py-2 border rounded-md" placeholder="Enter r">
+                            <label class="block text-sm font-medium mb-1" for="tree-depth">Depth (number of choices)</label>
+                            <input type="number" id="tree-depth" min="1" max="4" class="w-full px-3 py-2 border rounded-md" value="2">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 mb-3 hidden" id="permutation-result-input">
-                        <div>
-                            <label class="block text-sm font-medium mb-1" for="permutation-result">Permutation result
-                                (nPr)</label>
-                            <input type="number" id="permutation-result" min="1"
-                                class="w-full px-3 py-2 border rounded-md" placeholder="Enter nPr value">
-                        </div>
+
+                    <div class="mb-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="tree-repetition" class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
+                            <span class="ml-2 text-sm">Allow repetitions</span>
+                        </label>
                     </div>
+
+                    <button id="generate-tree" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                        Generate Tree
+                    </button>
                 </div>
 
-                <button id="calculate-permutation" class="w-full dark-btn font-bold py-2 px-4 rounded">
-                    Calculate
-                </button>
+                <div id="tree-result" class="max-w-full mx-auto dark-card p-4 hidden">
+                    <h3 class="text-lg font-bold mb-3">Tree Diagram</h3>
+                    <div id="tree-stats" class="stats-box mb-3"></div>
+                    <div class="tree-container pinch-zoom-container">
+                        <div class="tree-wrapper">
+                            <div id="tree-diagram-container" class="tree-diagram-container">
+                                <div id="tree-diagram"></div>
+                                <div id="tree-canvas-stats" class="canvas-stats"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zoom-controls">
+                        <button id="zoom-in" class="zoom-btn" title="Zoom In">+</button>
+                        <button id="zoom-out" class="zoom-btn" title="Zoom Out">-</button>
+                        <button id="zoom-reset" class="zoom-btn" title="Reset Zoom">↻</button>
+                        <div class="zoom-display">100%</div>
+                    </div>
+                    <button id="download-tree" class="mt-3 dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download as Image
+                    </button>
+                </div>
+
+                <div id="tree-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
+                    <h3 class="text-lg font-bold mb-2">About Tree Diagrams</h3>
+                    <p class="mb-2 text-sm">Tree diagrams visualize all possible outcomes of sequential choices or events.</p>
+                    <p class="text-sm">Each branch represents a possible choice, and paths from root to leaves represent complete sequences.</p>
+                </div>
             </div>
 
-            <div id="permutation-result" class="max-w-2xl mx-auto dark-card p-4 hidden">
-                <h3 class="text-lg font-bold mb-3">Result</h3>
-                <div id="permutation-stats" class="stats-box mb-3"></div>
-                <div id="permutation-output" class="mb-3"></div>
-                <div id="permutation-formula" class="formula-box mb-3"></div>
-                <button id="download-permutation"
-                    class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    Download as Image
-                </button>
+            <div id="table-section" class="content-section hidden">
+                <h2 class="text-xl font-bold mb-4 text-center">Table Method</h2>
+
+                <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
+                    <div id="table-error" class="error-message"></div>
+                    <div class="grid grid-cols-1 gap-3 mb-3">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="table-items">Items (comma separated)</label>
+                            <input type="text" id="table-items" class="w-full px-3 py-2 border rounded-md" value="1, 2, 3">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="table-positions">Positions</label>
+                            <input type="number" id="table-positions" min="1" max="5" class="w-full px-3 py-2 border rounded-md" value="2">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="table-repetition" class="rounded border-gray-300 text-indigo-600 shadow-sm">
+                            <span class="ml-2 text-sm">Allow repetitions</span>
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="table-ordered" class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
+                            <span class="ml-2 text-sm">Ordered (permutations)</span>
+                        </label>
+                    </div>
+
+                    <button id="generate-table" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                        Generate Table
+                    </button>
+                </div>
+
+                <div id="table-result" class="max-w-full mx-auto dark-card p-4 hidden">
+                    <h3 class="text-lg font-bold mb-3">Result</h3>
+                    <div id="table-stats" class="stats-box mb-3"></div>
+                    <div id="table-output" class="overflow-auto mb-3" style="max-height: 400px;"></div>
+                    <div id="table-download-container" class="table-download-container hidden">
+                        <div id="table-stats-for-download" class="stats-box"></div>
+                        <div id="table-output-for-download"></div>
+                    </div>
+                    <button id="download-table" class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download as Image
+                    </button>
+                </div>
+
+                <div id="table-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
+                    <h3 class="text-lg font-bold mb-2">About Permutations and Combinations</h3>
+                    <p class="mb-2 text-sm"><strong>Permutations</strong> are ordered arrangements where sequence matters (AB ≠ BA).</p>
+                    <p class="text-sm"><strong>Combinations</strong> are unordered selections where sequence doesn't matter (AB = BA).</p>
+                </div>
             </div>
 
-            <div id="permutation-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
-                <h3 class="text-lg font-bold mb-2">About Permutation Formula</h3>
-                <p class="mb-2 text-sm">The permutation formula <em>nPr</em> calculates the number of ways to arrange
-                    <em>r</em>
-                    objects from a set of <em>n</em> distinct objects.
-                </p>
-                <div class="formula-box">
-                    <p class="text-sm">The formula is:</p>
-                    <p class="text-center font-bold">nPr = n! / (n - r)!</p>
+            <div id="factorial-section" class="content-section hidden">
+                <h2 class="text-xl font-bold mb-4 text-center">Factorial Solver</h2>
+
+                <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
+                    <div id="factorial-error" class="error-message"></div>
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium mb-1" for="factorial-input">Number (n)</label>
+                        <input type="number" id="factorial-input" min="0" max="20" class="w-full px-3 py-2 border rounded-md" placeholder="Enter a number (max 20)">
+                    </div>
+
+                    <button id="calculate-factorial" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                        Calculate Factorial
+                    </button>
+                </div>
+
+                <div id="factorial-result" class="max-w-2xl mx-auto dark-card p-4 hidden">
+                    <h3 class="text-lg font-bold mb-3">Result</h3>
+                    <div id="factorial-stats" class="stats-box mb-3"></div>
+                    <div id="factorial-output" class="mb-3"></div>
+                    <button id="download-factorial" class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download as Image
+                    </button>
+                </div>
+
+                <div id="factorial-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
+                    <h3 class="text-lg font-bold mb-2">About Factorials</h3>
+                    <p class="mb-2 text-sm">The factorial of a non-negative integer n (n!) is the product of all positive integers ≤ n.</p>
+                    <p class="text-sm">Example: 5! = 5 × 4 × 3 × 2 × 1 = 120</p>
+                </div>
+            </div>
+
+            <div id="permutation-section" class="content-section hidden">
+                <h2 class="text-xl font-bold mb-4 text-center">Permutation Formula</h2>
+
+                <div class="max-w-2xl mx-auto dark-card p-4 mb-6">
+                    <div id="permutation-error" class="error-message"></div>
+
+                    <div class="solve-mode mb-3">
+                        <label>
+                            <input type="radio" name="solve-for" value="permutation" checked>
+                            <span class="text-sm">Solve for nPr</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="solve-for" value="n">
+                            <span class="text-sm">Solve for n</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="solve-for" value="r">
+                            <span class="text-sm">Solve for r</span>
+                        </label>
+                    </div>
+
+                    <div id="permutation-inputs">
+                        <div class="grid grid-cols-1 gap-3 mb-3">
+                            <div>
+                                <label class="block text-sm font-medium mb-1" for="permutation-n">Total items (n)</label>
+                                <input type="number" id="permutation-n" min="1" max="20" class="w-full px-3 py-2 border rounded-md" placeholder="Enter n">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1" for="permutation-r">Selected items (r)</label>
+                                <input type="number" id="permutation-r" min="1" max="20" class="w-full px-3 py-2 border rounded-md" placeholder="Enter r">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 mb-3 hidden" id="permutation-result-input">
+                            <div>
+                                <label class="block text-sm font-medium mb-1" for="permutation-result">Permutation result (nPr)</label>
+                                <input type="number" id="permutation-result" min="1" class="w-full px-3 py-2 border rounded-md" placeholder="Enter nPr value">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="calculate-permutation" class="w-full dark-btn font-bold py-2 px-4 rounded">
+                        Calculate
+                    </button>
+                </div>
+
+                <div id="permutation-result" class="max-w-2xl mx-auto dark-card p-4 hidden">
+                    <h3 class="text-lg font-bold mb-3">Result</h3>
+                    <div id="permutation-stats" class="stats-box mb-3"></div>
+                    <div id="permutation-output" class="mb-3"></div>
+                    <div id="permutation-formula" class="formula-box mb-3"></div>
+                    <button id="download-permutation" class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download as Image
+                    </button>
+                </div>
+
+                <div id="permutation-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
+                    <h3 class="text-lg font-bold mb-2">About Permutation Formula</h3>
+                    <p class="mb-2 text-sm">The permutation formula <em>nPr</em> calculates the number of ways to arrange <em>r</em> objects from a set of <em>n</em> distinct objects.</p>
+                    <div class="formula-box">
+                        <p class="text-sm">The formula is:</p>
+                        <p class="text-center font-bold">nPr = n! / (n - r)!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -883,7 +895,7 @@
                 showError('tree-error', 'Tree method is not supported on mobile devices');
                 return;
             }
-            
+
             const itemsInput = document.getElementById('tree-items').value.trim();
             const depth = parseInt(document.getElementById('tree-depth').value);
             const allowRepetition = document.getElementById('tree-repetition').checked;
@@ -1534,7 +1546,18 @@
         // Initialize
         showTab(0);
         updateInputFields();
+
+        // iOS smooth scrolling fix
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('.scrollable-content') === null) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        const scrollableContent = document.querySelector('.scrollable-content');
+        scrollableContent.addEventListener('touchmove', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
     </script>
 </body>
-
 </html>
