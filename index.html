@@ -9,7 +9,8 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* Reset and base styles */
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             margin: 0;
@@ -146,9 +147,11 @@
             0% {
                 background-color: #ff6b6b;
             }
+
             50% {
                 background-color: #ff8e8e;
             }
+
             100% {
                 background-color: #ff6b6b;
             }
@@ -334,8 +337,8 @@
             .scrollable-content {
                 padding-bottom: 40px;
             }
-            
-            .scrollable-content > * {
+
+            .scrollable-content>* {
                 -webkit-transform: translateZ(0);
             }
 
@@ -493,18 +496,23 @@
                     <div id="tree-error" class="error-message"></div>
                     <div class="grid grid-cols-1 gap-3 mb-3">
                         <div>
-                            <label class="block text-sm font-medium mb-1" for="tree-items">Items (comma separated)</label>
-                            <input type="text" id="tree-items" class="w-full px-3 py-2 border rounded-md" value="A, B, C">
+                            <label class="block text-sm font-medium mb-1" for="tree-items">Items (comma
+                                separated)</label>
+                            <input type="text" id="tree-items" class="w-full px-3 py-2 border rounded-md"
+                                value="A, B, C">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1" for="tree-depth">Depth (number of choices)</label>
-                            <input type="number" id="tree-depth" min="1" max="4" class="w-full px-3 py-2 border rounded-md" value="2">
+                            <label class="block text-sm font-medium mb-1" for="tree-depth">Depth (number of
+                                choices)</label>
+                            <input type="number" id="tree-depth" min="1" max="4"
+                                class="w-full px-3 py-2 border rounded-md" value="2">
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="inline-flex items-center">
-                            <input type="checkbox" id="tree-repetition" class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
+                            <input type="checkbox" id="tree-repetition"
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
                             <span class="ml-2 text-sm">Allow repetitions</span>
                         </label>
                     </div>
@@ -531,9 +539,11 @@
                         <button id="zoom-reset" class="zoom-btn" title="Reset Zoom">↻</button>
                         <div class="zoom-display">100%</div>
                     </div>
-                    <button id="download-tree" class="mt-3 dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <button id="download-tree"
+                        class="mt-3 dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download as Image
                     </button>
@@ -541,8 +551,10 @@
 
                 <div id="tree-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
                     <h3 class="text-lg font-bold mb-2">About Tree Diagrams</h3>
-                    <p class="mb-2 text-sm">Tree diagrams visualize all possible outcomes of sequential choices or events.</p>
-                    <p class="text-sm">Each branch represents a possible choice, and paths from root to leaves represent complete sequences.</p>
+                    <p class="mb-2 text-sm">Tree diagrams visualize all possible outcomes of sequential choices or
+                        events.</p>
+                    <p class="text-sm">Each branch represents a possible choice, and paths from root to leaves represent
+                        complete sequences.</p>
                 </div>
             </div>
 
@@ -553,25 +565,30 @@
                     <div id="table-error" class="error-message"></div>
                     <div class="grid grid-cols-1 gap-3 mb-3">
                         <div>
-                            <label class="block text-sm font-medium mb-1" for="table-items">Items (comma separated)</label>
-                            <input type="text" id="table-items" class="w-full px-3 py-2 border rounded-md" value="1, 2, 3">
+                            <label class="block text-sm font-medium mb-1" for="table-items">Items (comma
+                                separated)</label>
+                            <input type="text" id="table-items" class="w-full px-3 py-2 border rounded-md"
+                                value="1, 2, 3">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-1" for="table-positions">Positions</label>
-                            <input type="number" id="table-positions" min="1" max="5" class="w-full px-3 py-2 border rounded-md" value="2">
+                            <input type="number" id="table-positions" min="1" max="5"
+                                class="w-full px-3 py-2 border rounded-md" value="2">
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="inline-flex items-center">
-                            <input type="checkbox" id="table-repetition" class="rounded border-gray-300 text-indigo-600 shadow-sm">
+                            <input type="checkbox" id="table-repetition"
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm">
                             <span class="ml-2 text-sm">Allow repetitions</span>
                         </label>
                     </div>
 
                     <div class="mb-3">
                         <label class="inline-flex items-center">
-                            <input type="checkbox" id="table-ordered" class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
+                            <input type="checkbox" id="table-ordered"
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm" checked>
                             <span class="ml-2 text-sm">Ordered (permutations)</span>
                         </label>
                     </div>
@@ -589,9 +606,11 @@
                         <div id="table-stats-for-download" class="stats-box"></div>
                         <div id="table-output-for-download"></div>
                     </div>
-                    <button id="download-table" class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <button id="download-table"
+                        class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download as Image
                     </button>
@@ -599,8 +618,10 @@
 
                 <div id="table-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
                     <h3 class="text-lg font-bold mb-2">About Permutations and Combinations</h3>
-                    <p class="mb-2 text-sm"><strong>Permutations</strong> are ordered arrangements where sequence matters (AB ≠ BA).</p>
-                    <p class="text-sm"><strong>Combinations</strong> are unordered selections where sequence doesn't matter (AB = BA).</p>
+                    <p class="mb-2 text-sm"><strong>Permutations</strong> are ordered arrangements where sequence
+                        matters (AB ≠ BA).</p>
+                    <p class="text-sm"><strong>Combinations</strong> are unordered selections where sequence doesn't
+                        matter (AB = BA).</p>
                 </div>
             </div>
 
@@ -611,7 +632,8 @@
                     <div id="factorial-error" class="error-message"></div>
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1" for="factorial-input">Number (n)</label>
-                        <input type="number" id="factorial-input" min="0" max="20" class="w-full px-3 py-2 border rounded-md" placeholder="Enter a number (max 20)">
+                        <input type="number" id="factorial-input" min="0" max="20"
+                            class="w-full px-3 py-2 border rounded-md" placeholder="Enter a number (max 20)">
                     </div>
 
                     <button id="calculate-factorial" class="w-full dark-btn font-bold py-2 px-4 rounded">
@@ -623,9 +645,11 @@
                     <h3 class="text-lg font-bold mb-3">Result</h3>
                     <div id="factorial-stats" class="stats-box mb-3"></div>
                     <div id="factorial-output" class="mb-3"></div>
-                    <button id="download-factorial" class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <button id="download-factorial"
+                        class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download as Image
                     </button>
@@ -633,7 +657,8 @@
 
                 <div id="factorial-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
                     <h3 class="text-lg font-bold mb-2">About Factorials</h3>
-                    <p class="mb-2 text-sm">The factorial of a non-negative integer n (n!) is the product of all positive integers ≤ n.</p>
+                    <p class="mb-2 text-sm">The factorial of a non-negative integer n (n!) is the product of all
+                        positive integers ≤ n.</p>
                     <p class="text-sm">Example: 5! = 5 × 4 × 3 × 2 × 1 = 120</p>
                 </div>
             </div>
@@ -662,18 +687,24 @@
                     <div id="permutation-inputs">
                         <div class="grid grid-cols-1 gap-3 mb-3">
                             <div>
-                                <label class="block text-sm font-medium mb-1" for="permutation-n">Total items (n)</label>
-                                <input type="number" id="permutation-n" min="1" max="20" class="w-full px-3 py-2 border rounded-md" placeholder="Enter n">
+                                <label class="block text-sm font-medium mb-1" for="permutation-n">Total items
+                                    (n)</label>
+                                <input type="number" id="permutation-n" min="1" max="20"
+                                    class="w-full px-3 py-2 border rounded-md" placeholder="Enter n">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1" for="permutation-r">Selected items (r)</label>
-                                <input type="number" id="permutation-r" min="1" max="20" class="w-full px-3 py-2 border rounded-md" placeholder="Enter r">
+                                <label class="block text-sm font-medium mb-1" for="permutation-r">Selected items
+                                    (r)</label>
+                                <input type="number" id="permutation-r" min="1" max="20"
+                                    class="w-full px-3 py-2 border rounded-md" placeholder="Enter r">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 mb-3 hidden" id="permutation-result-input">
                             <div>
-                                <label class="block text-sm font-medium mb-1" for="permutation-result">Permutation result (nPr)</label>
-                                <input type="number" id="permutation-result" min="1" class="w-full px-3 py-2 border rounded-md" placeholder="Enter nPr value">
+                                <label class="block text-sm font-medium mb-1" for="permutation-result">Permutation
+                                    result (nPr)</label>
+                                <input type="number" id="permutation-result" min="1"
+                                    class="w-full px-3 py-2 border rounded-md" placeholder="Enter nPr value">
                             </div>
                         </div>
                     </div>
@@ -688,9 +719,11 @@
                     <div id="permutation-stats" class="stats-box mb-3"></div>
                     <div id="permutation-output" class="mb-3"></div>
                     <div id="permutation-formula" class="formula-box mb-3"></div>
-                    <button id="download-permutation" class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
+                    <button id="download-permutation"
+                        class="dark-btn font-bold py-2 px-4 rounded flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download as Image
                     </button>
@@ -698,7 +731,8 @@
 
                 <div id="permutation-explanation" class="max-w-2xl mx-auto mt-6 dark-card p-4">
                     <h3 class="text-lg font-bold mb-2">About Permutation Formula</h3>
-                    <p class="mb-2 text-sm">The permutation formula <em>nPr</em> calculates the number of ways to arrange <em>r</em> objects from a set of <em>n</em> distinct objects.</p>
+                    <p class="mb-2 text-sm">The permutation formula <em>nPr</em> calculates the number of ways to
+                        arrange <em>r</em> objects from a set of <em>n</em> distinct objects.</p>
                     <div class="formula-box">
                         <p class="text-sm">The formula is:</p>
                         <p class="text-center font-bold">nPr = n! / (n - r)!</p>
@@ -966,12 +1000,12 @@
                 factorial(items.length) / factorial(items.length - depth);
 
             const statsHTML = `
-                <p><strong>Tree Statistics:</strong></p>
-                <p>Items: ${items.length}</p>
-                <p>Depth: ${depth}</p>
-                <p>Repetition: ${allowRepetition ? 'Allowed' : 'Not Allowed'}</p>
-                <p>Total Outcomes: ${totalOutcomes}</p>
-            `;
+        <p><strong>Tree Statistics:</strong></p>
+        <p>Items: ${items.length}</p>
+        <p>Depth: ${depth}</p>
+        <p>Repetition: ${allowRepetition ? 'Allowed' : 'Not Allowed'}</p>
+        <p>Total Outcomes: ${totalOutcomes}</p>
+    `;
 
             treeStats.innerHTML = statsHTML;
             canvasStats.innerHTML = statsHTML;
@@ -1168,15 +1202,15 @@
             const uniqueCombinations = seen.size;
 
             tableStats.innerHTML = `
-                <p><strong>Table Statistics:</strong></p>
-                <p>Items: ${items.length}</p>
-                <p>Positions: ${positions}</p>
-                <p>Type: ${ordered ? 'Permutations' : 'Combinations'}</p>
-                <p>Repetition: ${allowRepetition ? 'Allowed' : 'Not Allowed'}</p>
-                <p>Total arrangements: ${totalCombinations}</p>
-                <p>Unique arrangements: ${uniqueCombinations}</p>
-                ${duplicateCount > 0 ? `<p>Duplicate arrangements: ${duplicateCount}</p>` : ''}
-            `;
+        <p><strong>Table Statistics:</strong></p>
+        <p>Items: ${items.length}</p>
+        <p>Positions: ${positions}</p>
+        <p>Type: ${ordered ? 'Permutations' : 'Combinations'}</p>
+        <p>Repetition: ${allowRepetition ? 'Allowed' : 'Not Allowed'}</p>
+        <p>Total arrangements: ${totalCombinations}</p>
+        <p>Unique arrangements: ${uniqueCombinations}</p>
+        ${duplicateCount > 0 ? `<p>Duplicate arrangements: ${duplicateCount}</p>` : ''}
+    `;
         }
 
         function generatePermutations(items, k, allowRepetition) {
@@ -1258,17 +1292,17 @@
             }
 
             factorialOutput.innerHTML = `
-                <p class="text-lg font-semibold">
-                    ${n}! = ${result.toLocaleString()}
-                </p>
-            `;
+        <p class="text-lg font-semibold">
+            ${n}! = ${result.toLocaleString()}
+        </p>
+    `;
 
             factorialStats.innerHTML = `
-                <p><strong>Factorial Calculation:</strong></p>
-                <p>n: ${n}</p>
-                <p>Result: ${result.toLocaleString()}</p>
-                <p>Calculation: ${steps.join(' × ')}${steps.length > 0 ? ' = ' + result.toLocaleString() : ''}</p>
-            `;
+        <p><strong>Factorial Calculation:</strong></p>
+        <p>n: ${n}</p>
+        <p>Result: ${result.toLocaleString()}</p>
+        <p>Calculation: ${steps.join(' × ')}${steps.length > 0 ? ' = ' + result.toLocaleString() : ''}</p>
+    `;
 
             factorialResult.classList.remove('hidden');
         }
@@ -1303,18 +1337,20 @@
             resultInput.disabled = false;
             permutationResultInput.classList.add('hidden');
 
+            // Clear values when switching modes
+            nInput.value = '';
+            rInput.value = '';
+            resultInput.value = '';
+
             // Update based on selection
             if (solveFor === 'n') {
                 nInput.disabled = true;
-                nInput.value = '';
                 permutationResultInput.classList.remove('hidden');
             } else if (solveFor === 'r') {
                 rInput.disabled = true;
-                rInput.value = '';
                 permutationResultInput.classList.remove('hidden');
             } else if (solveFor === 'permutation') {
                 resultInput.disabled = true;
-                resultInput.value = '';
             }
         }
 
@@ -1360,28 +1396,28 @@
             const permutation = nFactorial / nMinusRFactorial;
 
             permutationOutput.innerHTML = `
-                <p class="text-lg font-semibold">
-                    ${n}P${r} = ${permutation.toLocaleString()}
-                </p>
-            `;
+        <p class="text-lg font-semibold">
+            ${n}P${r} = ${permutation.toLocaleString()}
+        </p>
+    `;
 
             permutationStats.innerHTML = `
-                <p><strong>Permutation Statistics:</strong></p>
-                <p>n: ${n}</p>
-                <p>r: ${r}</p>
-                <p>n! = ${nFactorial.toLocaleString()}</p>
-                <p>(n-r)! = ${nMinusRFactorial.toLocaleString()}</p>
-                <p>Result: ${permutation.toLocaleString()}</p>
-            `;
+        <p><strong>Permutation Statistics:</strong></p>
+        <p>n: ${n}</p>
+        <p>r: ${r}</p>
+        <p>n! = ${nFactorial.toLocaleString()}</p>
+        <p>(n-r)! = ${nMinusRFactorial.toLocaleString()}</p>
+        <p>Result: ${permutation.toLocaleString()}</p>
+    `;
 
             permutationFormula.innerHTML = `
-                <p>The permutation formula is:</p>
-                <p class="text-center text-lg font-bold">${n}P${r} = ${n}! / (${n} - ${r})! = ${permutation.toLocaleString()}</p>
-                <p>Calculation steps:</p>
-                <p>${n}! = ${n} × ${n - 1} × ... × 1 = ${nFactorial.toLocaleString()}</p>
-                <p>(${n} - ${r})! = ${n - r}! = ${nMinusRFactorial.toLocaleString()}</p>
-                <p>${n}P${r} = ${nFactorial.toLocaleString()} / ${nMinusRFactorial.toLocaleString()} = ${permutation.toLocaleString()}</p>
-            `;
+        <p>The permutation formula is:</p>
+        <p class="text-center text-lg font-bold">${n}P${r} = ${n}! / (${n} - ${r})! = ${permutation.toLocaleString()}</p>
+        <p>Calculation steps:</p>
+        <p>${n}! = ${n} × ${n - 1} × ... × 1 = ${nFactorial.toLocaleString()}</p>
+        <p>(${n} - ${r})! = ${n - r}! = ${nMinusRFactorial.toLocaleString()}</p>
+        <p>${n}P${r} = ${nFactorial.toLocaleString()} / ${nMinusRFactorial.toLocaleString()} = ${permutation.toLocaleString()}</p>
+    `;
 
             permutationResultSection.classList.remove('hidden');
         }
@@ -1390,6 +1426,7 @@
             const r = parseInt(document.getElementById('permutation-r').value);
             const permutationValue = parseInt(document.getElementById('permutation-result').value);
 
+            // Validation
             if (isNaN(r) || isNaN(permutationValue)) {
                 showError('permutation-error', 'Please enter valid numbers for r and nPr');
                 return;
@@ -1400,16 +1437,21 @@
                 return;
             }
 
-            // Find n where n!/(n-r)! ≈ permutationValue
+            // Find the smallest n where n!/(n-r)! >= permutationValue
             let n = r;
             let found = false;
-            while (n <= 20) {
-                const currentPerm = factorial(n) / factorial(n - r);
-                if (currentPerm === permutationValue) {
-                    found = true;
+            while (n <= 20) { // Limiting to 20 to prevent excessive computation
+                try {
+                    const currentPerm = factorial(n) / factorial(n - r);
+                    if (currentPerm === permutationValue) {
+                        found = true;
+                        break;
+                    }
+                    n++;
+                } catch (e) {
+                    // Handle cases where n-r becomes negative
                     break;
                 }
-                n++;
             }
 
             if (!found) {
@@ -1417,27 +1459,31 @@
                 return;
             }
 
+            // Update the disabled n field with the found value
+            document.getElementById('permutation-n').value = n;
+
+            // Display results
             permutationOutput.innerHTML = `
-                <p class="text-lg font-semibold">
-                    n = ${n} (for ${n}P${r} = ${permutationValue})
-                </p>
-            `;
+        <p class="text-lg font-semibold">
+            n = ${n} (for ${n}P${r} = ${permutationValue})
+        </p>
+    `;
 
             permutationStats.innerHTML = `
-                <p><strong>Solution:</strong></p>
-                <p>Given r = ${r} and nPr = ${permutationValue}</p>
-                <p>Found n = ${n}</p>
-                <p>Verification: ${n}P${r} = ${factorial(n) / factorial(n - r)}</p>
-            `;
+        <p><strong>Solution:</strong></p>
+        <p>Given r = ${r} and nPr = ${permutationValue}</p>
+        <p>Found n = ${n}</p>
+        <p>Verification: ${n}P${r} = ${factorial(n) / factorial(n - r)}</p>
+    `;
 
             permutationFormula.innerHTML = `
-                <p>Solved for n where:</p>
-                <p class="text-center text-lg font-bold">n! / (n - ${r})! = ${permutationValue}</p>
-                <p>Found solution:</p>
-                <p>n = ${n}</p>
-                <p>Verification:</p>
-                <p>${n}P${r} = ${n}! / (${n}-${r})! = ${factorial(n) / factorial(n - r)}</p>
-            `;
+        <p>Solved for n where:</p>
+        <p class="text-center text-lg font-bold">n! / (n - ${r})! = ${permutationValue}</p>
+        <p>Found solution:</p>
+        <p>n = ${n}</p>
+        <p>Verification:</p>
+        <p>${n}P${r} = ${n}! / (${n}-${r})! = ${factorial(n) / factorial(n - r)}</p>
+    `;
 
             permutationResultSection.classList.remove('hidden');
         }
@@ -1446,6 +1492,7 @@
             const n = parseInt(document.getElementById('permutation-n').value);
             const permutationValue = parseInt(document.getElementById('permutation-result').value);
 
+            // Validation
             if (isNaN(n) || isNaN(permutationValue)) {
                 showError('permutation-error', 'Please enter valid numbers for n and nPr');
                 return;
@@ -1461,16 +1508,21 @@
                 return;
             }
 
-            // Find r where n!/(n-r)! ≈ permutationValue
+            // Find r where n!/(n-r)! = permutationValue
             let r = 1;
             let found = false;
             while (r <= n) {
-                const currentPerm = factorial(n) / factorial(n - r);
-                if (currentPerm === permutationValue) {
-                    found = true;
+                try {
+                    const currentPerm = factorial(n) / factorial(n - r);
+                    if (currentPerm === permutationValue) {
+                        found = true;
+                        break;
+                    }
+                    r++;
+                } catch (e) {
+                    // Handle cases where n-r becomes negative
                     break;
                 }
-                r++;
             }
 
             if (!found) {
@@ -1478,36 +1530,44 @@
                 return;
             }
 
+            // Update the disabled r field with the found value
+            document.getElementById('permutation-r').value = r;
+
+            // Display results
             permutationOutput.innerHTML = `
-                <p class="text-lg font-semibold">
-                    r = ${r} (for ${n}P${r} = ${permutationValue})
-                </p>
-            `;
+        <p class="text-lg font-semibold">
+            r = ${r} (for ${n}P${r} = ${permutationValue})
+        </p>
+    `;
 
             permutationStats.innerHTML = `
-                <p><strong>Solution:</strong></p>
-                <p>Given n = ${n} and nPr = ${permutationValue}</p>
-                <p>Found r = ${r}</p>
-                <p>Verification: ${n}P${r} = ${permutationValue}</p>
-            `;
+        <p><strong>Solution:</strong></p>
+        <p>Given n = ${n} and nPr = ${permutationValue}</p>
+        <p>Found r = ${r}</p>
+        <p>Verification: ${n}P${r} = ${permutationValue}</p>
+    `;
 
             permutationFormula.innerHTML = `
-                <p>Solved for r where:</p>
-                <p class="text-center text-lg font-bold">${n}! / (${n} - r)! = ${permutationValue}</p>
-                <p>Found solution:</p>
-                <p>r = ${r}</p>
-                <p>Verification:</p>
-                <p>${n}P${r} = ${n}! / (${n}-${r})! = ${permutationValue}</p>
-            `;
+        <p>Solved for r where:</p>
+        <p class="text-center text-lg font-bold">${n}! / (${n} - r)! = ${permutationValue}</p>
+        <p>Found solution:</p>
+        <p>r = ${r}</p>
+        <p>Verification:</p>
+        <p>${n}P${r} = ${n}! / (${n}-${r})! = ${permutationValue}</p>
+    `;
 
             permutationResultSection.classList.remove('hidden');
         }
 
         // Helper functions
         function factorial(num) {
-            if (num < 0) return -1;
-            if (num === 0) return 1;
-            return num * factorial(num - 1);
+            if (num < 0) return NaN; // Return NaN for negative numbers
+            if (num === 0 || num === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= num; i++) {
+                result *= i;
+            }
+            return result;
         }
 
         // Improved download functionality
@@ -1548,16 +1608,17 @@
         updateInputFields();
 
         // iOS smooth scrolling fix
-        document.addEventListener('touchmove', function(e) {
+        document.addEventListener('touchmove', function (e) {
             if (e.target.closest('.scrollable-content') === null) {
                 e.preventDefault();
             }
         }, { passive: false });
 
         const scrollableContent = document.querySelector('.scrollable-content');
-        scrollableContent.addEventListener('touchmove', function(e) {
+        scrollableContent.addEventListener('touchmove', function (e) {
             e.stopPropagation();
         }, { passive: true });
     </script>
 </body>
+
 </html>
